@@ -1,17 +1,17 @@
-	package viewmodel;
+package viewmodel;
 	
-	import javafx.geometry.Pos;
-	import javafx.scene.control.CheckBox;
-	import javafx.scene.control.Label;
-	import javafx.scene.control.ListCell;
-	import javafx.scene.layout.HBox;
-	import model.Task;
+import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+import model.Task;
 	
 	public class TaskCell extends ListCell<Task>{
 		
-		private final Label label = new Label();
+		private final Text text = new Text();
 		private final CheckBox checkBox = new CheckBox();
-		private final HBox cell = new HBox(10,checkBox,label);
+		private final HBox cell = new HBox(10,checkBox,text);
 		
 		private Task boundTask;
 		
@@ -25,7 +25,7 @@
 			
 			
 			if (boundTask != null) {
-	            label.textProperty().unbind();
+	            text.textProperty().unbind();
 	            checkBox.selectedProperty().unbindBidirectional(boundTask.stateProperty());
 	            boundTask = null;
 	        }
@@ -36,16 +36,23 @@
 			}else {
 				boundTask = task;
 				
-				label.textProperty().bind(task.nameProperty());
+				task.stateProperty().addListener((obs, oldVal, newVal) -> {
+					text.setStrikethrough(newVal);
+				});
+				
 				checkBox.selectedProperty().bindBidirectional(task.stateProperty());
+				text.textProperty().bind(task.nameProperty());
+				text.setStrikethrough(task.getState());
+				
 				
 				cell.setAlignment(Pos.CENTER_LEFT);
 				cell.setSpacing(10);
 				cell.setPrefHeight(30);
 				
-				label.getStyleClass().setAll("label-task-cell");
+				text.getStyleClass().setAll("label-task-cell");
 				checkBox.getStyleClass().setAll("checkBox-task-cell");
 				cell.getStyleClass().setAll("task-cell");
+				
 				
 				setGraphic(cell);
 			}
