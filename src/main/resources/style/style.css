@@ -1,0 +1,93 @@
+.app-root{
+	-fx-background-color: #FFC685;
+	-fx-background-radius: 10;
+	-fx-border-radius: 10;	
+}
+.text-field{
+	-fx-background-color: #FFF7E6;
+	-fx-background-radius: 8;
+	-fx-border-color: #B3AF8F;
+	-fx-border-radius: 8;
+	-fx-padding: 5;
+}
+.button{
+	-fx-background-color: #66999B;
+	-fx-background-radius: 7;
+	-fx-border-radius: 7;
+	-fx-text-fill: white;
+}
+.button:hover{
+	-fx-background-color: #496A81;
+	-fx-cursor: hand;
+}
+.button:pressed {
+    -fx-background-color: #3a556a;
+}
+.button-delete{
+	-fx-background-color: red;
+	-fx-background-radius: 7;
+	-fx-border-radius: 7;
+	-fx-text-fill: white;
+}
+.button-delete:hover{
+	-fx-background-color: #d61313;
+	-fx-cursor: hand;
+}
+
+.list-view{
+	-fx-background-color: #FFF7E6;
+	-fx-background-radius: 8;
+	-fx-border-color: #B3AF8F;
+	-fx-border-radius: 8;
+	-fx-padding: 5;
+}
+.list-cell{
+	-fx-background-color: #FFF7E6;
+	-fx-background-radius: 8;
+	-fx-border-color: #B3AF8F;
+	-fx-border-radius: 8;
+	-fx-padding: 7;
+}
+.list-cell:hover{
+	-fx-translate-x:4;
+}
+.list-cell:selected {
+    -fx-background-color: #66999B;
+    -fx-text-fill: white;
+}
+.list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+.label{
+	-fx-text-fill: #2B3A67;
+}
+.task-cell {
+	 -fx-padding: 5;
+	 -fx-background-radius: 8;
+	 -fx-background-color: #FFF7E6; 
+}
+.label-task-cell { 
+	-fx-text-fill: #2B3A67; 
+}
+.checkBox-task-cell{
+	-fx-background-color: transparent;
+	-fx-padding: 0;
+}
+.checkBox-task-cell .box { 
+	-fx-border-color: #66999B; 
+	-fx-background-color: white; 
+	-fx-min-width: 32px;   
+	-fx-min-height: 32px;  
+	-fx-max-width: 32px;
+	-fx-max-height: 32px;
+	-fx-padding: 5;
+}
+.checkBox-task-cell:selected .box { 
+	-fx-background-color: #66999B; 
+}
+.checkBox-task-cell .mark {
+    -fx-background-color: white; 
+    -fx-shape: "M0.1 0.5 L0.4 0.8 L0.9 0.1";
+	-fx-padding: 5;  
+}
