@@ -16,7 +16,7 @@ import model.Task;
 		private Task boundTask;
 		
 		public TaskCell() {
-	        checkBox.setFocusTraversable(false);
+	        checkBox.setFocusTraversable(false); 
 	    }
 		
 		@Override
@@ -24,7 +24,7 @@ import model.Task;
 			super.updateItem(task, empty);
 			
 			
-			if (boundTask != null) {
+			if (boundTask != null) {                   //si la cellule a été recyclée et contient une reference on debind tout et on efface la reference
 	            text.textProperty().unbind();
 	            checkBox.selectedProperty().unbindBidirectional(boundTask.stateProperty());
 	            boundTask = null;
@@ -34,15 +34,15 @@ import model.Task;
 				setGraphic(null);
 				setText(null);
 			}else {
-				boundTask = task;
+				boundTask = task;                      //on garde une reference pour debind tout en cas de recyclage
 				
 				task.stateProperty().addListener((obs, oldVal, newVal) -> {
 					text.setStrikethrough(newVal);
 				});
+				text.setStrikethrough(task.getState()); //réapliquer le strikeThrough a chaque recyclage pour eviter les bugs visuel
 				
 				checkBox.selectedProperty().bindBidirectional(task.stateProperty());
 				text.textProperty().bind(task.nameProperty());
-				text.setStrikethrough(task.getState());
 				
 				
 				cell.setAlignment(Pos.CENTER_LEFT);
