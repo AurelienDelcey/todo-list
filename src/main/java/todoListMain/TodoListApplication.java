@@ -8,7 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 
-public class todoListApplication extends Application{
+public class TodoListApplication extends Application{
 	
 	
 
@@ -28,7 +28,7 @@ public class todoListApplication extends Application{
 	}
 
 	public static void main(String[] args) {
-		launch(todoListApplication.class);
+		launch(TodoListApplication.class);
 	}
 
 }
