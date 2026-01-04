@@ -1,5 +1,12 @@
 package controller;
 
+import java.io.File;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -11,7 +18,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
+
 import model.Task;
+import persistence.Saver;
 import viewmodel.TaskCell;
 
 public class TaskController {
@@ -21,6 +30,7 @@ public class TaskController {
     // ----------------------------
     private ObservableList<Task> tasks;          // liste observable contenant toutes les tâches
     private FilteredList<Task> filteredTasks;    // liste filtrée pour l'affichage selon filtre
+    private Saver saver;                          // gestionnaire de sauvegarde
     private double xOffset;                       // position x pour le drag
     private double yOffset;                       // position y pour le drag
 
@@ -52,15 +62,18 @@ public class TaskController {
         String name = taskField.getText().trim();
         this.taskField.clear();
 
-        if(name.isEmpty()) return;
+        if (name.isEmpty()) return;
 
-        for(Task i : tasks) {
-            if(i.getName().equals(name)) {
+        // Eviter les doublons
+        for (Task i : tasks) {
+            if (i.getName().equals(name)) {
                 return;
             }
         }
 
-        Task task = new Task(name);
+        // Création et ajout de la tâche
+        Task task = new Task();
+        task.setName(name);
         this.tasks.add(task);
     }
 
@@ -68,9 +81,9 @@ public class TaskController {
     public void onRemoveTask() {
         Task selected = taskList.getSelectionModel().getSelectedItem();
 
-        if(selected != null) {
+        if (selected != null) {
             tasks.remove(selected);
-        } else if(!tasks.isEmpty()) {
+        } else if (!tasks.isEmpty()) {
             tasks.remove(0);
         }
     }
@@ -78,8 +91,27 @@ public class TaskController {
     @FXML
     public void onCheckTask() {
         Task selected = taskList.getSelectionModel().getSelectedItem();
-        if(selected != null) {
+        if (selected != null) {
+            // bascule de l'état (fait / à faire)
             selected.setState(!selected.getState());
+        }
+    }
+
+    @FXML
+    public void onSaveTasks() {
+        try {
+            saver.saveAll(this.tasks.toArray(i -> new Task[this.tasks.size()]));
+        } catch (StreamWriteException e) {
+            System.out.println("ERROR: stream write exception: " + e.getMessage());
+            e.printStackTrace();
+        } catch (DatabindException e) {
+            System.out.println("ERROR: data bind exception: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("ERROR: IO exception: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
@@ -89,19 +121,20 @@ public class TaskController {
 
     @FXML
     public void onCloseApp() {
-        Stage stage = (Stage)this.taskField.getScene().getWindow();
+        onSaveTasks();
+        Stage stage = (Stage) this.taskField.getScene().getWindow();
         stage.close();
     }
 
     @FXML
     public void onMinimizeWindow() {
-        Stage stage = (Stage)this.taskField.getScene().getWindow();
+        Stage stage = (Stage) this.taskField.getScene().getWindow();
         stage.setIconified(true);
     }
 
     @FXML
     public void onMaximizeWindow() {
-        Stage stage = (Stage)this.taskField.getScene().getWindow();
+        Stage stage = (Stage) this.taskField.getScene().getWindow();
         stage.setMaximized(!stage.isMaximized());
     }
 
@@ -113,6 +146,7 @@ public class TaskController {
     public void onSetFilter(ActionEvent event) {
         CheckBox source = (CheckBox) event.getSource();
 
+        // un seul filtre actif à la fois
         checkFilterAll.setSelected(source == checkFilterAll);
         checkFilterToDo.setSelected(source == checkFilterToDo);
         checkFilterCompleted.setSelected(source == checkFilterCompleted);
@@ -121,12 +155,12 @@ public class TaskController {
     }
 
     private void applyFilter() {
-        if(checkFilterCompleted.isSelected()) {
-            filteredTasks.setPredicate(Task::getState);
-        } else if(checkFilterToDo.isSelected()) {
-            filteredTasks.setPredicate(t -> !t.getState());
+        if (checkFilterCompleted.isSelected()) {
+            filteredTasks.setPredicate(Task::getState); // afficher seulement les tâches faites
+        } else if (checkFilterToDo.isSelected()) {
+            filteredTasks.setPredicate(t -> !t.getState()); // afficher seulement les tâches à faire
         } else {
-            filteredTasks.setPredicate(t -> true);
+            filteredTasks.setPredicate(t -> true); // aucun filtre
         }
     }
 
@@ -137,7 +171,12 @@ public class TaskController {
     @FXML
     public void initialize() {
 
-        // Initialisation des listes
+        // Création du Saver avec un chemin générique relatif
+        this.saver = new Saver(new File("save/save1.json"));
+
+        // ----------------------------
+        // INITIALISATION DES LISTES
+        // ----------------------------
         this.tasks = FXCollections.observableArrayList(
                 task -> new javafx.beans.Observable[] { task.stateProperty() }
         );
@@ -168,7 +207,7 @@ public class TaskController {
         // GESTION DES TOUCHES
         // ----------------------------
         this.taskList.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
-            switch(e.getCode()) {
+            switch (e.getCode()) {
                 case DELETE:
                     onRemoveTask();
                     e.consume();
@@ -176,15 +215,35 @@ public class TaskController {
                 /*case ENTER:
                     Task selected = taskList.getSelectionModel().getSelectedItem();
                     if (selected != null) {
-                    	e.consume();
-                    	Platform.runLater(() -> {
-                    		selected.setState(!selected.getState());
-                    	});
+                        e.consume();
+                        Platform.runLater(() -> {
+                            selected.setState(!selected.getState());
+                        });
                     }
                     break;*/
                 default:
                     break;
             }
         });
+
+        // ----------------------------
+        // CHARGEMENT DES TÂCHES EXISTANTES
+        // ----------------------------
+        if (saver.getFile().exists()) {
+            try {
+                this.tasks.setAll(this.saver.load());
+            } catch (StreamReadException e) {
+                System.out.println("ERROR: stream read exception: " + e.getMessage());
+                e.printStackTrace();
+            } catch (DatabindException e) {
+                System.out.println("ERROR: data bind exception: " + e.getMessage());
+                e.printStackTrace();
+            } catch (IOException e) {
+                System.out.println("ERROR: IO exception: " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
+        }
     }
 }

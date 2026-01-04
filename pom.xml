@@ -2,6 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
@@ -12,9 +13,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
         <javafx.version>20.0.2</javafx.version>
         <junit.version>5.10.0</junit.version>
         <mockito.version>5.6.0</mockito.version>
+        <jackson.version>2.16.1</jackson.version>
     </properties>
 
     <dependencies>
@@ -25,11 +28,19 @@
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
             <classifier>win</classifier>
+        </dependency>
+
+        <!-- Jackson (JSON serialization / deserialization) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <!-- JUnit 5 -->

@@ -9,8 +9,8 @@ public class Task {
 	private StringProperty name ;
 	private BooleanProperty state;
 	
-	public Task(String name) {
-		this.name = new SimpleStringProperty(name);
+	public Task() {
+		this.name = new SimpleStringProperty("");
 		this.state = new SimpleBooleanProperty(false);
 	}
 	
@@ -19,7 +19,7 @@ public class Task {
 	}
 	
 	public StringProperty nameProperty() {
-		return this.name;
+		return this.name ;
 	}
 	
 	public void setName(String name) {
